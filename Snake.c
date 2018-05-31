@@ -8,8 +8,8 @@
 #define INITIAL_POSITION_X 10
 #define INITIAL_POSITION_Y 3
 
-typedef enum {BORDER_VERTICAL = 'x', BORDER_HORIZONTAL = '+', BLANK = ' ', SNAKE = '#', SNAKE_FULL = '@', FOOD = '*', GAME_OVER = 'X'} Caracter;
-enum Direction {TO_TOP, TO_RIGHT, TO_BOTTOM, TO_LEFT};
+typedef enum { BORDER_VERTICAL = 'x', BORDER_HORIZONTAL = '+', BLANK = ' ', SNAKE = '#', SNAKE_FULL = '@', FOOD = '*', GAME_OVER = 'X' } Caracter;
+enum Direction { TO_TOP, TO_RIGHT, TO_BOTTOM, TO_LEFT };
 
 typedef enum { false, true } bool;
 
@@ -28,7 +28,6 @@ struct {
 	int width;
 } foods;
 
-
 HHOOK hHock;
 DWORD cCharsWritten = 0;
 
@@ -41,51 +40,56 @@ char gameField[ROWS][COLUMNS];
 int speed = 1000;
 Snake snake;
 
-void updateGameField(int y,int x,Caracter c){
+void updateGameField(int y, int x, Caracter c) 
+{
 	gameField[y][x] = c;
-	COORD here = (COORD) {x,y};
+	COORD here = (COORD) { x, y };
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	WriteConsoleOutputCharacter(hStdOut,&c, 1, here, &cCharsWritten);
+	WriteConsoleOutputCharacter(hStdOut, &c, 1, here, &cCharsWritten);
 }
 
-void printGameField(){
+void printGameField() 
+{
 	int i, j;
-	for (i = 0; i < ROWS; i++){
+	for (i = 0; i < ROWS; i++) {
 		for (j = 0; j < COLUMNS; j++)
 		{
-			printf("%c",gameField[i][j]);
+			printf("%c", gameField[i][j]);
 		}
 		printf("\n");
 	}
 }
 
-void gameOver(){
-	updateGameField(currentPositionY,currentPositionX,GAME_OVER);
-	printf("\nGAME OVER!!!\n\nYour score was %d\n\n", snake.width-1);
+void gameOver() 
+{
+	updateGameField(currentPositionY, currentPositionX, GAME_OVER);
+	printf("\nGAME OVER!!!\n\nYour score was %d\n\n", snake.width - 1);
 	exit(0);
 }
 
-void generateFood(){
+void generateFood()
+{
 	int randomRow;
 	int randomColumn;
-	do{
+	do {
 		randomRow = rand() % ROWS;
 		randomColumn = rand() % COLUMNS;
 	} while (gameField[randomRow][randomColumn] != BLANK);
-	updateGameField(randomRow,randomColumn,FOOD);
+	updateGameField(randomRow, randomColumn, FOOD);
 	hasFood = true;
 }
 
-void fillGameField(){
+void fillGameField() 
+{
 	int i, j;
-	for (i = 0; i < ROWS; i++){
-		for (j= 0; j < COLUMNS; j++)
+	for (i = 0; i < ROWS; i++) {
+		for (j = 0; j < COLUMNS; j++)
 		{
-			if (j < 2 || j > COLUMNS - 3){
+			if (j < 2 || j > COLUMNS - 3) {
 				gameField[i][j] = BORDER_VERTICAL;
 				continue;
 			}
-			if (i < 2 || i > ROWS - 3){
+			if (i < 2 || i > ROWS - 3) {
 				gameField[i][j] = BORDER_HORIZONTAL;
 				continue;
 			}
@@ -94,7 +98,8 @@ void fillGameField(){
 	}
 }
 
-void moveSnake(){
+void moveSnake()
+{
 
 	switch (currentDirection)
 	{
@@ -128,7 +133,7 @@ void moveSnake(){
 
 	updateGameField(snake.coordenates[snake.width - 1].y, snake.coordenates[snake.width - 1].x, BLANK);
 	memmove(&snake.coordenates[1], snake.coordenates, sizeof(Coordenate)*(snake.width - 1));
-	snake.coordenates[0] = (Coordenate) { currentPositionY,currentPositionX };
+	snake.coordenates[0] = (Coordenate) { currentPositionY, currentPositionX };
 
 	if (gameField[foods.coordenates[foods.width - 1].y][foods.coordenates[foods.width - 1].x] == BLANK) {
 		updateGameField(foods.coordenates[foods.width - 1].y, foods.coordenates[foods.width - 1].x, SNAKE);
@@ -145,7 +150,7 @@ void moveSnake(){
 		foods.width++;
 		updateGameField(currentPositionY, currentPositionX, SNAKE_FULL);
 		generateFood();
-		if(speed!=5)speed -= 5;
+		if (speed != 5)speed -= 5;
 		break;
 	case SNAKE:
 	case SNAKE_FULL:
@@ -157,33 +162,30 @@ void moveSnake(){
 	default:
 		break;
 	}
-
-
 }
 
 LRESULT CALLBACK MyLowLevelHook(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nCode >= HC_ACTION)
 	{
-		DWORD dwBytesWritten = 0;
 		KBDLLHOOKSTRUCT* pkbhs = (KBDLLHOOKSTRUCT*)lParam;
-		if (pkbhs->vkCode == 'W'){
-			if (oldDirection != TO_BOTTOM){
+		if (pkbhs->vkCode == 'W') {
+			if (oldDirection != TO_BOTTOM) {
 				currentDirection = TO_TOP;
 			}
 		}
-		if (pkbhs->vkCode == 'D'){
-			if (oldDirection != TO_LEFT){
+		if (pkbhs->vkCode == 'D') {
+			if (oldDirection != TO_LEFT) {
 				currentDirection = TO_RIGHT;
 			}
 		}
-		if (pkbhs->vkCode == 'S'){
-			if (oldDirection != TO_TOP){
+		if (pkbhs->vkCode == 'S') {
+			if (oldDirection != TO_TOP) {
 				currentDirection = TO_BOTTOM;
 			}
 		}
-		if (pkbhs->vkCode == 'A'){
-			if (oldDirection != TO_RIGHT){
+		if (pkbhs->vkCode == 'A') {
+			if (oldDirection != TO_RIGHT) {
 				currentDirection = TO_LEFT;
 			}
 		}
@@ -191,7 +193,8 @@ LRESULT CALLBACK MyLowLevelHook(int nCode, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(hHock, nCode, wParam, lParam);
 }
 
-DWORD WINAPI runKeyboardListener(void* data) {
+DWORD WINAPI runKeyboardListener(void* data)
+{
 	MSG msg;
 	hHock = SetWindowsHookEx(WH_KEYBOARD_LL, MyLowLevelHook, NULL, NULL);
 
@@ -204,7 +207,8 @@ DWORD WINAPI runKeyboardListener(void* data) {
 	return 0;
 }
 
-DWORD WINAPI runPromptViewer(void* data) {
+DWORD WINAPI runPromptViewer(void* data)
+{
 	currentPositionX = INITIAL_POSITION_X;
 	currentPositionY = INITIAL_POSITION_Y;
 	currentDirection = TO_RIGHT;
