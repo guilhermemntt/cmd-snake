@@ -60,7 +60,7 @@ void printGameField(){
 }
 
 void gameOver(){
-	gameField[currentPositionY][currentPositionX] = GAME_OVER;
+	updateGameField(currentPositionY,currentPositionX,GAME_OVER);
 	printf("\nGAME OVER!!!\n\nYour score was %d\n\n", snake.width-1);
 	exit(0);
 }
@@ -130,6 +130,12 @@ void moveSnake(){
 	memmove(&snake.coordenates[1], snake.coordenates, sizeof(Coordenate)*(snake.width - 1));
 	snake.coordenates[0] = (Coordenate) { currentPositionY,currentPositionX };
 
+	if (gameField[foods.coordenates[foods.width - 1].y][foods.coordenates[foods.width - 1].x] == BLANK) {
+		updateGameField(foods.coordenates[foods.width - 1].y, foods.coordenates[foods.width - 1].x, SNAKE);
+		snake.coordenates[snake.width++] = (Coordenate) { foods.coordenates[foods.width - 1].y, foods.coordenates[foods.width - 1].x };
+		foods.width--;
+	}
+
 	switch (gameField[currentPositionY][currentPositionX])
 	{
 	case FOOD:
@@ -152,11 +158,7 @@ void moveSnake(){
 		break;
 	}
 
-	if (gameField[foods.coordenates[foods.width - 1].y][foods.coordenates[foods.width - 1].x] == BLANK) {
-		updateGameField(foods.coordenates[foods.width - 1].y,foods.coordenates[foods.width - 1].x, SNAKE);
-		snake.coordenates[snake.width++] = (Coordenate){ foods.coordenates[foods.width - 1].y ,foods.coordenates[foods.width - 1].x };
-		foods.width--;
-	}
+
 }
 
 LRESULT CALLBACK MyLowLevelHook(int nCode, WPARAM wParam, LPARAM lParam)
